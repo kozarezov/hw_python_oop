@@ -1,3 +1,9 @@
+LEN_STEP = 0.65
+LEN_STEP_SWIM = 1.38
+M_IN_KM = 1000
+MIN_IN_HOUR = 60
+
+
 class InfoMessage:
     """Информационное сообщение о тренировке."""
     pass
@@ -11,15 +17,18 @@ class Training:
                  duration: float,
                  weight: float,
                  ) -> None:
-        pass
+        self.action = action  # количество совершённых действий
+        self.duration = duration  # длительность тренировки
+        self.weight = weight  # вес спортсмена
+        self.dur_min = self.duration * MIN_IN_HOUR
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
-        pass
+        return self.action * LEN_STEP / M_IN_KM
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        pass
+        return self.get_distance() / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -32,13 +41,37 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-    pass
+
+    def get_spent_calories(self) -> float:
+        """Получить количество затраченных калорий."""
+
+        coeff_calorie_1 = 18
+        coeff_calorie_2 = 20
+
+        return ((coeff_calorie_1 * self.get_mean_speed() - coeff_calorie_2) *
+                self.weight / M_IN_KM * self.duration * self.dur_min)
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    pass
 
+    def __init__(self,
+                 action: int,
+                 duration: float,
+                 weight: float,
+                 height: float,
+                 ) -> None:
+        super().__init__(action, duration, weight)
+        self.height = height  # рост спортсмена
+
+    def get_spent_calories(self) -> float:
+        """Получить количество затраченных калорий."""
+
+        coeff_calorie_1 = 0.035
+        coeff_calorie_2 = 0.029
+
+        return ((coeff_calorie_1 * self.height + (self.get_mean_speed() ** 2 //
+                self.height) * coeff_calorie_2 * self.height) * self.dur_min)
 
 class Swimming(Training):
     """Тренировка: плавание."""
